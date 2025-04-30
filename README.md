@@ -1,4 +1,4 @@
-# Project: rt-rename
+# rt-rename
 
 ## Overview
 Rename RT structure sets according to the TG263 guideline using Large Language Models 

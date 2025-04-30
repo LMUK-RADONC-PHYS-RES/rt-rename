@@ -1,0 +1,19 @@
+You need to rename structures based on the TG263 nomenclature list. This task is crucial for standardizing radiation oncology practices across different institutions from different countries and improving data interoperability.
+Here is the TG263 structures list (in English):
+{TG263_list}
+The doctor named the structure: 
+{structure_input}
+What standard name do you think is most suitable?
+In addition to the correct name please also provide a confidence level for your answer (High, Medium, Low).
+
+Examples:
+PTV, Medium
+GTV, High
+Kidney_L, High
+Lung, Medium
+Parotid_R, High
+
+If you are uncertain, you can reply with "no match".
+
+REPLY LIKE THIS: <TG263_name>,<confidence_level>
+Stick to the format! Do not add any text! ONLY THE FORMAT I DESCRIBED. THIS IS A MATTER OF LIFE AND DEATH.

@@ -1,0 +1,12 @@
+FROM python:3.12
+
+WORKDIR /project_data_2/cbct/synthRAD/
+
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get install -y git
+RUN mkdir /code
+COPY preprocessing /code/
+
+
+

@@ -1,0 +1,40 @@
+services:
+  
+  synthrad:
+    build:
+      context: . # Change this if you want your build config to be in a subdirectory
+      dockerfile: dockerfile
+    volumes:
+      - /project_data_2/cbct/synthRAD/:/workspace
+    ports:
+        - 8055:8055
+    command: tail -F anything
+    environment:
+      - OLLAMA_HOST=ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            count: 'all'
+            capabilities: [gpu]
+  
+  ollama:
+    image: ollama/ollama
+    volumes: 
+       - ./ollama:/root/.ollama
+    ports:
+      - 11435:11434
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            count: 'all'
+            capabilities: [gpu]
+  
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - 6379:6379

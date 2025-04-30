@@ -1,0 +1,13 @@
+body {
+    margin: 0;
+}
+
+#my-grid .ag-header {
+    position: fixed !important;
+    z-index: 1;
+}
+
+/*Value to adapt if there is a custom header height, floating filters, column groups*/
+#my-grid .ag-body {
+    top: 50px;
+}

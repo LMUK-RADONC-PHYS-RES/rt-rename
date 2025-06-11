@@ -586,32 +586,33 @@ def run_llm_cloud(model:str='meta-llama/Meta-Llama-3.1-70B-Instruct-fast', promp
     Returns:
         dict: A dictionary containing the response from the language model with the key 'response'.
     """
-    client = OpenAI(
-        base_url=os.environ.get("OPEN_AI_URL"),
-        api_key=os.environ.get("OPEN_AI_API_KEY")
-        )
-
     try:
-        response = client.chat.completions.create(
-            model=model,
-            max_tokens=32000,
-            temperature=temperature,
-            top_p=top_p,
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": prompt
-                        }
-                    ]
-                }
-            ]
-        )
+        client = OpenAI(
+            base_url=os.environ.get("OPEN_AI_URL"),
+            api_key=os.environ.get("OPEN_AI_API_KEY")
+            )
     except Exception as e:
-        print(f"Error running model {model}, check your OPEN_AI_API_KEY and OPEN_AI_API_URL environment vaiables: {e}")
+        print(f"For cloud inference you need to set OPEN_AI_API_KEY and OPEN_AI_API_URL environment vaiables: {e}")
         return None
+    
+    response = client.chat.completions.create(
+        model=model,
+        max_tokens=32000,
+        temperature=temperature,
+        top_p=top_p,
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": prompt
+                    }
+                ]
+            }
+        ]
+    )
+    
 
     message = {}
     message['response'] = response.choices[0].message.content

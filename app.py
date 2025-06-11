@@ -1,6 +1,6 @@
 from dash import Dash, html, dcc, callback, Input, Output, State, set_props, DiskcacheManager, no_update
 import dash_ag_grid as dag
-from utils import run_model, parse_filenames, parse_csv, parse_dicom, update_dicom, get_prompts
+from utils import run_model, parse_filenames, parse_csv, parse_dicom, update_dicom, get_prompts, get_models
 import dash_bootstrap_components as dbc
 import pandas as pd
 import base64
@@ -209,18 +209,7 @@ app.layout =  html.Div(
                     children=[
                         html.P("Model:", style={"verticalAlign": "top"}),
                         dcc.Dropdown(
-                            [
-                                "Llama 3.1:70B",
-                                "Llama 3.3:70B",
-                                "Qwen 2.5",
-                                "Llama 3.2",
-                                "qwq",
-                                "R1",
-                                "V3-cloud",
-                                "R1-cloud",
-                                "L3-cloud",
-                                "L3R-cloud"
-                            ],
+                            get_models(),
                             "Llama 3.1:70B",
                             multi=False,
                             id="model",

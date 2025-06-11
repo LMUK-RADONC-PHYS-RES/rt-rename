@@ -1,0 +1,62 @@
+[
+    {
+        "name": "Llama 3.1",
+        "parameters": "70B",
+        "model_str": "llama3.1:70b-instruct-q4_0",
+        "cloud": false
+    },
+    {
+        "name": "Llama 3.3",
+        "parameters": "70B",
+        "model_str": "llama3.3:70b",
+        "cloud": false
+    },
+    {
+        "name": "Qwen 2.5",
+        "parameters": "72B",
+        "model_str": "qwen2.5:72b",
+        "cloud": false
+    },
+    {
+        "name": "Llama 3.2",
+        "parameters": "3B",
+        "model_str": "llama3.2:3b-instruct-fp16",
+        "cloud": false
+    },
+    {
+        "name": "qwq",
+        "parameters": "32B",
+        "model_str": "qwq:32b-preview-q8_0",
+        "cloud": false
+    },
+    {
+        "name": "Llama 3.3 R1 distill",
+        "parameters": "70B",
+        "model_str": "deepseek-r1:70b",
+        "cloud": false
+    },
+    {
+        "name": "Deepseek V3",
+        "parameters": "671B",
+        "model_str": "deepseek-ai/DeepSeek-V3",
+        "cloud": true
+    },
+    {
+        "name": "Deepseek R1",
+        "parameters": "671B",
+        "model_str": "deepseek-ai/DeepSeek-R1",
+        "cloud": true
+    },
+    {
+        "name": "Llama 3.3",
+        "parameters": "70B",
+        "model_str": "meta-llama/Llama-3.3-70B-Instruct",
+        "cloud": true
+    },
+    {
+        "name": "Llama 3.3 R1 distill",
+        "parameters": "70B",
+        "model_str": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+        "cloud": true
+    }
+]

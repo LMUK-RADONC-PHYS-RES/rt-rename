@@ -372,13 +372,29 @@ def write_dicom_rtstruct_names(dicom_file_path: str, new_names_map: dict[str, st
     except Exception as e:
         print(f"Error writing DICOM RTSTRUCT file {dicom_file_path}: {e}")
 
+def get_models():
+    """
+    Retrieves the available models from the configuration file.
+    
+    Returns:
+        list: A list of dictionaries containing model information.
+              Each dictionary contains:
+                - 'model_str': The string identifier for the model.
+                - 'cloud': A string indicating if the model is cloud-based ('true' or 'false').
+                - 'display_name': A user-friendly name for the model.
+    """
+    import json
+    with open('./config/models.json', 'r') as f:
+        models = json.load(f)
+
+    model_names = [f'{model["name"]} | {model["parameters"]} | {"cloud" if model["cloud"] else "local"}' for model in models]
+    return model_names
 
 def run_model(model, prompt, guideline, region, structure_dict,column_defs=None,gui=True,uncertain=False):
     """
     Runs a specified model with given parameters and updates the structure dictionary with predictions.
     Args:
-        model (str): The model to be used. Supported models include "Llama 3.1:70B", "Llama 3.3:70B", "Qwen 2.5", 
-                        "Llama 3.2", "qwq", "R1", "V3-cloud", "R1-cloud", and "Llama3.3-cloud".
+        model (str): The model to be used. Options can be configured in ./config/models.json
         prompt (str): The prompt version to be used. Supported versions include "v1", "v2", "v3", "v4", "v5", and "v6".
         guideline (str): The guideline to be used for reading nomenclature.
         region (str): The region for which the guideline is applicable.
@@ -388,34 +404,8 @@ def run_model(model, prompt, guideline, region, structure_dict,column_defs=None,
     Returns:
         list: Updated structure dictionary with predictions, confidence scores, and verification status.
     """
-    cloud = False
-    if model == "Llama 3.1:70B":
-        model_str = "llama3.1:70b-instruct-q4_0"
-    elif model == "Llama 3.3:70B":
-        model_str = "llama3.3:70b"
-    elif model == "Qwen 2.5":
-        model_str = "qwen2.5:72b"
-    elif model == "Llama 3.2":
-        model_str = "llama3.2:3b-instruct-fp16"
-    elif model == "qwq":
-        model_str = "qwq:32b-preview-q8_0"
-    elif model == "R1":
-        model_str = "deepseek-r1:70b"
-    elif model == "V3-cloud":
-        model_str = "deepseek-ai/DeepSeek-V3"
-        cloud = True
-    elif model == "R1-cloud":
-        model_str = "deepseek-ai/DeepSeek-R1"
-        cloud = True
-    elif model == "L3-cloud":
-        model_str = "meta-llama/Llama-3.3-70B-Instruct"
-        cloud = True
-    elif model == "L3R-cloud":
-        model_str = 'deepseek-ai/DeepSeek-R1-Distill-Llama-70B'
-        cloud = True
-    else:
-        print("Model not implemented")
-        # TODO: Make this a proper error message
+    model_str = model['model_str']
+    cloud = True if model['cloud'] == 'true' else False
 
     nomenclature_list = read_guideline(region,guideline,description=False)
     column_defs_updated = []
@@ -434,21 +424,6 @@ def run_model(model, prompt, guideline, region, structure_dict,column_defs=None,
         string = f"Model running {i+1}/{len(structure_dict)}..."
         #set_props('status-bar', {'children': html.P(string)})
         prompt_str = parse_prompt(f'./config/{prompt}',nomenclature_list,structure['local name'])
-        if prompt == "v1":
-            prompt_str = parse_prompt('./config/prompt_v1.txt',nomenclature_list,structure['local name'])
-        if prompt == "v2":
-            prompt_str = parse_prompt('./config/prompt_v2.txt',nomenclature_list,structure['local name'])
-        if prompt == "v3":
-            prompt_str = parse_prompt('./config/prompt_v3.txt',nomenclature_list,structure['local name'])
-        if prompt == "v4":
-            prompt_str = parse_prompt('./config/prompt_v4.txt',nomenclature_list,structure['local name'])
-        # if prompt == "v5":
-        #     nomenclature_list = read_guideline(region,guideline,description=True)
-        #     prompt_str = parse_prompt_v2('./config/prompt_v5.txt',nomenclature_list,structure['local name'])
-        # if prompt == "v6":
-        #     nomenclature_list = read_guideline(region,guideline,description=True)
-        #     prompt_str = parse_prompt_v2('./config/prompt_v6.txt',nomenclature_list,structure['local name'])
-        #try:
         system_prompt = '''You are a radiation oncology professional with vast experience in naming structures for radiotherapy treatment planning. You understand English, German and Dutch.
         You are tasked with renaming structures based on a standardized nomenclature list. This task is crucial for standardizing radiation oncology 
         practices across different institutions from different countries and improving data interoperability. Follow the prompts strictly and do not provide 

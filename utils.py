@@ -12,6 +12,7 @@ import pandas as pd
 import math
 import pydicom
 import fnmatch
+import json
 
 def load_guideline(nomenclature_xlsx,type='standard',description=False,regions=None):
     """
@@ -399,7 +400,7 @@ def get_model_str(model_name):
     Returns:
         str: The model string identifier.
     """
-    import json
+    print(f'Getting model string for {model_name}')
     with open('./config/models.json', 'r') as f:
         models = json.load(f)
     for model in models:

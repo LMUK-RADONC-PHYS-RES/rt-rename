@@ -7,6 +7,9 @@ RUN mkdir /code
 WORKDIR /code
 
 RUN git clone https://github.com/LMUK-RADONC-PHYS-RES/rt-rename.git
+WORKDIR /code/rt-rename
+CMD ["python", "app.py"]
+
 
 
 

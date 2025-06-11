@@ -403,8 +403,8 @@ def get_model_str(model_name):
     with open('./config/models.json', 'r') as f:
         models = json.load(f)
     for model in models:
-        if model_name.startswith(model['name']):
-            return model['model_str'], model['cloud']
+        if model_name == model:
+            return model['model_str'], model["cloud"]
     return None
 
 def run_model(model, prompt, guideline, region, structure_dict,column_defs=None,gui=True,uncertain=False):

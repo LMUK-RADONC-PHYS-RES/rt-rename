@@ -1,6 +1,6 @@
 from dash import Dash, html, dcc, callback, Input, Output, State, set_props, DiskcacheManager, no_update
 import dash_ag_grid as dag
-from utils import run_model, parse_filenames, parse_csv, parse_dicom, update_dicom
+from utils import run_model, parse_filenames, parse_csv, parse_dicom, update_dicom, get_prompts
 import dash_bootstrap_components as dbc
 import pandas as pd
 import base64
@@ -234,8 +234,7 @@ app.layout =  html.Div(
                             },
                         ),
                         dcc.Dropdown(
-                            ["v1", "v2", "v3", "v4", "v5","v6"],
-                            "v1",
+                            get_prompts(),
                             multi=False,
                             id="prompt",
                             style={"width": "80%"},

@@ -32,6 +32,6 @@ The doctor named the structure (in English, German or Dutch):
 {structure_input}
 What standard name would you pick for this structure?   
 
-- It his highly important that you reply only in the format shown in the examples: predicted TG263_name,confidence_level. 
+- It is highly important that you reply only in the format shown in the examples: predicted TG263_name,confidence_level. 
 - Do not add any text, explanation or summary. 
-- THIS IS HIGHLY IMPORTANT FOR SAVE PATIENT TREATMENTS!
+- THIS IS HIGHLY IMPORTANT FOR SAFE PATIENT TREATMENTS!

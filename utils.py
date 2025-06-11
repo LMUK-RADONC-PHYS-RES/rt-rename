@@ -11,6 +11,7 @@ import io
 import pandas as pd
 import math
 import pydicom
+import fnmatch
 
 def load_guideline(nomenclature_xlsx,type='standard',description=False,regions=None):
     """
@@ -78,6 +79,17 @@ def load_structures_dir(dir_path,filter=None):
     # structures_center = ','.join(structures_center)
     # structures_center = structures_center.split(',')
     return structures_center
+
+def get_prompts():
+    """
+    Returns all available prompt versions as a list.
+    Returns:
+        list: A list of available prompt versions.
+    """
+    prompts = os.listdir('./config')
+    prompts = fnmatch.filter(prompts, 'prompt*.txt')
+    return prompts
+    
 
 def parse_prompt(file_path, TG263_list, structure_input):
     """
@@ -421,6 +433,7 @@ def run_model(model, prompt, guideline, region, structure_dict,column_defs=None,
     for i,structure in enumerate(structure_dict):
         string = f"Model running {i+1}/{len(structure_dict)}..."
         #set_props('status-bar', {'children': html.P(string)})
+        prompt_str = parse_prompt(f'./config/{prompt}',nomenclature_list,structure['local name'])
         if prompt == "v1":
             prompt_str = parse_prompt('./config/prompt_v1.txt',nomenclature_list,structure['local name'])
         if prompt == "v2":
@@ -429,12 +442,12 @@ def run_model(model, prompt, guideline, region, structure_dict,column_defs=None,
             prompt_str = parse_prompt('./config/prompt_v3.txt',nomenclature_list,structure['local name'])
         if prompt == "v4":
             prompt_str = parse_prompt('./config/prompt_v4.txt',nomenclature_list,structure['local name'])
-        if prompt == "v5":
-            nomenclature_list = read_guideline(region,guideline,description=True)
-            prompt_str = parse_prompt_v2('./config/prompt_v5.txt',nomenclature_list,structure['local name'])
-        if prompt == "v6":
-            nomenclature_list = read_guideline(region,guideline,description=True)
-            prompt_str = parse_prompt_v2('./config/prompt_v6.txt',nomenclature_list,structure['local name'])
+        # if prompt == "v5":
+        #     nomenclature_list = read_guideline(region,guideline,description=True)
+        #     prompt_str = parse_prompt_v2('./config/prompt_v5.txt',nomenclature_list,structure['local name'])
+        # if prompt == "v6":
+        #     nomenclature_list = read_guideline(region,guideline,description=True)
+        #     prompt_str = parse_prompt_v2('./config/prompt_v6.txt',nomenclature_list,structure['local name'])
         #try:
         system_prompt = '''You are a radiation oncology professional with vast experience in naming structures for radiotherapy treatment planning. You understand English, German and Dutch.
         You are tasked with renaming structures based on a standardized nomenclature list. This task is crucial for standardizing radiation oncology 

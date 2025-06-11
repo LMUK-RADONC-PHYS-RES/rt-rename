@@ -11,3 +11,4 @@ diskcache
 dash[diskcache]
 pydicom
 pandas
+python-dotenv

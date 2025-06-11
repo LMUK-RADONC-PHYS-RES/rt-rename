@@ -539,13 +539,8 @@ def run_llm(model:str='llama3.1:70b-instruct-q4_0', prompt:str=None, system_prom
     """
     ollama_client = ollama.Client(host = 'ollama:11434')
     try:
-        ollama_client.model(model)
-    except ollama.errors.ModelNotFoundError:
-        ollama_client.pull(model=model)
-    except ollama.errors.OllamaError as e:
-        print(f"Error pulling model {model}: {e}")
-        return None
-    response = ollama_client.generate(model=model,
+        response = ollama_client.generate(
+                                model=model,
                                prompt=prompt,
                                system=system_prompt,
                                #format='json',
@@ -554,8 +549,28 @@ def run_llm(model:str='llama3.1:70b-instruct-q4_0', prompt:str=None, system_prom
                                     "temperature": temperature,
                                     "top_p": top_p,
                                     "num_ctx": 24000,
-                               })
-    return response
+                               }
+                               )
+        return response
+    except ollama.errors.ModelNotFoundError:
+        ollama_client.pull(model=model)
+        response = ollama_client.generate(
+                                model=model,
+                               prompt=prompt,
+                               system=system_prompt,
+                               #format='json',
+                               options={
+                                    "seed": 111,
+                                    "temperature": temperature,
+                                    "top_p": top_p,
+                                    "num_ctx": 24000,
+                               }
+                               )
+        return response
+    except ollama.errors.OllamaError as e:
+        print(f"Error pulling model {model}: {e}")
+        return None
+    
 
 def run_llm_cloud(model:str='meta-llama/Meta-Llama-3.1-70B-Instruct-fast', prompt:str=None, system_prompt:str=None, temperature = 0, top_p = 0.9):
     """

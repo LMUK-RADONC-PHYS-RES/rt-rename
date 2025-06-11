@@ -423,6 +423,7 @@ def run_model(model, prompt, guideline, region, structure_dict,column_defs=None,
     """
     model_str, model_cloud = get_model_str(model)
     cloud = model_cloud
+    print(f'Running model: {model_str} with cloud={cloud}')
 
     nomenclature_list = read_guideline(region,guideline,description=False)
     column_defs_updated = []

@@ -1,15 +1,10 @@
 from dash import Dash, html, dcc, callback, Input, Output, State, set_props, DiskcacheManager, no_update
-from dash import dash_table
-import dash_daq as daq
 import dash_ag_grid as dag
-from utils import run_llm, run_model, parse_prompt_v2, load_guideline, check_TG263_name, parse_prompt, parse_filenames, read_guideline, parse_csv, parse_dicom, update_dicom
-import plotly.express as px
+from utils import run_model, parse_filenames, parse_csv, parse_dicom, update_dicom
 import dash_bootstrap_components as dbc
 import pandas as pd
 import base64
-import datetime
 import io
-import json
 import diskcache
 import pydicom
 import tempfile

@@ -1,10 +1,8 @@
 import ollama
 import os
-import fnmatch
 import openpyxl as xl
 from openai import OpenAI
 import csv
-from tqdm import tqdm
 from time import sleep
 from dash import set_props
 import time

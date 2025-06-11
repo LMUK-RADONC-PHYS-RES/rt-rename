@@ -538,6 +538,13 @@ def run_llm(model:str='llama3.1:70b-instruct-q4_0', prompt:str=None, system_prom
         response: The generated response from the model.
     """
     ollama_client = ollama.Client(host = 'ollama:11434')
+    try:
+        ollama_client.model(model)
+    except ollama.errors.ModelNotFoundError:
+        ollama_client.pull(model=model)
+    except ollama.errors.OllamaError as e:
+        print(f"Error pulling model {model}: {e}")
+        return None
     response = ollama_client.generate(model=model,
                                prompt=prompt,
                                system=system_prompt,

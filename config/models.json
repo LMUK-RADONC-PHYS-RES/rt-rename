@@ -42,6 +42,12 @@
         "cloud": false
     },
     {
+        "name": "Qwen 3",
+        "parameters": "30B",
+        "model_str": "qwen3:30b-a3b",
+        "cloud": false
+    },
+    {
         "name": "Deepseek V3",
         "parameters": "671B",
         "model_str": "deepseek-ai/DeepSeek-V3",

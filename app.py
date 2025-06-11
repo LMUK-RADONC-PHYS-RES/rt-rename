@@ -1,8 +1,8 @@
-from dash import Dash, html, dcc, callback, Input, Output, State, set_props, DiskcacheManager
+from dash import Dash, html, dcc, callback, Input, Output, State, set_props, DiskcacheManager, no_update
 from dash import dash_table
 import dash_daq as daq
 import dash_ag_grid as dag
-from utils import run_llm, run_model, parse_prompt_v2, load_guideline, check_TG263_name, parse_prompt, parse_filenames, read_guideline, parse_csv
+from utils import run_llm, run_model, parse_prompt_v2, load_guideline, check_TG263_name, parse_prompt, parse_filenames, read_guideline, parse_csv, parse_dicom, update_dicom
 import plotly.express as px
 import dash_bootstrap_components as dbc
 import pandas as pd
@@ -11,10 +11,13 @@ import datetime
 import io
 import json
 import diskcache
+import pydicom
+import tempfile
 from time import sleep
 
 cache = diskcache.Cache("./cache")
 background_callback_manager = DiskcacheManager(cache)
+file_content = {}
 
 app = Dash(name ='rt-rename', title="RT-Rename", external_stylesheets=[dbc.themes.UNITED])
 
@@ -330,6 +333,7 @@ app.layout =  html.Div(
                     ],
                     style={"width": "16.5%", "display": "inline-block"},
                 ),
+                dcc.Download(id="download-dataframe-dcm")
             ],
             style={
                 "marginLeft": "10px",
@@ -350,16 +354,36 @@ app.layout =  html.Div(
     prevent_initial_call=True
 )
 def update_on_file_load(filename,contents,filter_tv):
-    print(filter_tv)
+    print(f'Filtering target volumes: {filter_tv}')
     if 'csv' in filename[0]:
         data = parse_csv(contents[0], filename[0])
         set_props('status-bar', {'children': html.P(f"{len(data)} structures loaded from {filename[0]}")})
         return data
+    
+    elif '.DCM' in filename[0] or '.dcm' in filename[0]:
+        if contents is None:
+            return ""
+        
+        # read structure names from DICOM file into dataframe for GUI
+        data = parse_dicom(contents[0], filename[0], filter_tv)
+        set_props('status-bar', {'children': html.P(f"{len(data)} structures loaded from {filename[0]}")})
+        
+        # read entire DICOM into buffer for export later
+        decoded = base64.b64decode(contents[0].split(',')[1])
+        
+        # Read DICOM file from bytes
+        dicom_file = pydicom.dcmread(io.BytesIO(decoded))
+        file_content['pydicom'] = dicom_file
+        file_content['filename'] = filename[0]
+        
+        return data
+    
     else:
         data = parse_filenames(filename,filter_tv)
         set_props('status-bar', {'children': html.P(f"{len(data)} structures loaded")})
         return data
-    
+
+
 # Run model
 @callback(
     Input('button-run-model', 'n_clicks'),
@@ -393,6 +417,24 @@ def update_on_model_run(n_clicks, guideline, regions, model, prompt, data, colum
 def export_data_as_csv(n_clicks,patient_name):
     print('button clicked')
     return True, {"fileName": f"{patient_name}.csv"}
+
+@app.callback(
+    Output("download-dataframe-dcm", "data"),
+    Input("button-export-dcm", "n_clicks"),
+    State("main-data-table", "rowData"),
+    prevent_initial_call=True
+)
+def download_file(n_clicks, rowData):
+    if 'pydicom' in file_content:
+        # Create a temp file to serve as a download
+        temp = tempfile.NamedTemporaryFile(delete=False, suffix='.dcm')
+        # Update the structure names in the DICOM file
+        file_content['pydicom'] = update_dicom(file_content['pydicom'], rowData)
+        pydicom.dcmwrite(temp.name, file_content['pydicom'])
+        temp.close()
+        filename_new = file_content['filename'].strip('.dcm').strip('.DCM') + '_renamed.dcm'
+        return dcc.send_file(path = temp.name, filename=filename_new)
+    return no_update
 
 @callback(
     Input("main-data-table", "cellRendererData"),

@@ -12,6 +12,7 @@ import base64
 import io
 import pandas as pd
 import math
+import pydicom
 
 def load_guideline(nomenclature_xlsx,type='standard',description=False,regions=None):
     """
@@ -262,6 +263,104 @@ def parse_csv(contents,filename):
                 })
     return table_as_dicts
         
+def parse_dicom(contents, filename,tv_filter='False'):
+    """
+    Parses a DICOM file from its base64 encoded contents and extracts the structure names.
+    
+    Args:
+        contents (str): The base64 encoded contents of the DICOM file.
+        filename (str): The name of the DICOM file being parsed.
+    
+    Returns:
+        list: A list of dictionaries where each dictionary represents a structure with the following keys:
+            - "local name": The name of the structure with the '.dcm' extension stripped.
+            - "TG263 name": An empty string to be filled later.
+            - "confidence": An empty string to be filled later.
+            - "verify": An empty string to be filled later.
+            - "accept": An empty string to be filled later.
+            - "comment": An empty string to be filled later.
+    """
+    decoded = base64.b64decode(contents.split(',')[1])
+    dicom_file_path = f'/tmp/{filename}'
+    with open(dicom_file_path, 'wb') as f:
+        f.write(decoded)
+    
+    roi_names = read_dicom_rtstruct_names(dicom_file_path)
+    
+    if tv_filter == "True":
+        roi_names = [struct for struct in roi_names if not any(tv in struct for tv in ["PTV", "GTV", "CTV", "ITV"])]
+
+    roi_names = sorted(roi_names,key=sort_key)
+
+    table_as_dicts = []
+    for roi_name in roi_names:
+        table_as_dicts.append(
+            {
+                "local name": roi_name,
+                "TG263 name": str(),
+                "confidence": str(),
+                "verify": str(),
+                "accept": str(),
+                "comment": str(),
+                "raw output": str(),
+                "timestamp": str(),
+            })
+    
+    return table_as_dicts
+
+def read_dicom_rtstruct_names(dicom_file_path: str) -> list[str]:
+    """
+    Reads structure names from a DICOM RTSTRUCT file.
+
+    Args:
+        dicom_file_path (str): The path to the DICOM RTSTRUCT file.
+
+    Returns:
+        list[str]: A list of ROI names.
+    """
+    try:
+        rtstruct = pydicom.dcmread(dicom_file_path)
+        if "StructureSetROISequence" not in rtstruct:
+            print(f"Error: StructureSetROISequence not found in {dicom_file_path}")
+            return []
+        
+        roi_names = [roi.ROIName for roi in rtstruct.StructureSetROISequence]
+        return roi_names
+    except Exception as e:
+        print(f"Error reading DICOM RTSTRUCT file {dicom_file_path}: {e}")
+        return []
+
+def write_dicom_rtstruct_names(dicom_file_path: str, new_names_map: dict[str, str], output_file_path: str | None = None):
+    """
+    Writes renamed structure names back to a DICOM RTSTRUCT file.
+
+    Args:
+        dicom_file_path (str): The path to the input DICOM RTSTRUCT file.
+        new_names_map (dict[str, str]): A dictionary mapping original ROI names to new ROI names.
+        output_file_path (str, optional): The path to save the modified DICOM RTSTRUCT file. 
+                                         If None, the original file will be overwritten. Defaults to None.
+    """
+    try:
+        rtstruct = pydicom.dcmread(dicom_file_path)
+        if "StructureSetROISequence" not in rtstruct:
+            print(f"Error: StructureSetROISequence not found in {dicom_file_path}")
+            return
+
+        modified = False
+        for roi in rtstruct.StructureSetROISequence:
+            if roi.ROIName in new_names_map:
+                roi.ROIName = new_names_map[roi.ROIName]
+                modified = True
+        
+        if modified:
+            save_path = output_file_path if output_file_path else dicom_file_path
+            rtstruct.save_as(save_path)
+            print(f"Successfully updated ROI names in {save_path}")
+        else:
+            print(f"No matching ROI names found to update in {dicom_file_path}")
+
+    except Exception as e:
+        print(f"Error writing DICOM RTSTRUCT file {dicom_file_path}: {e}")
 
 
 def run_model(model, prompt, guideline, region, structure_dict,column_defs=None,gui=True,uncertain=False):
@@ -538,3 +637,29 @@ def structure_dict_to_csv(structure_dict,output_csv):
         dict_writer.writeheader()
         dict_writer.writerows(structure_dict)
 
+def update_dicom(dicom_file, structure_dict):
+    """
+    Updates the DICOM RTSTRUCT file with new structure names based on the provided structure dictionary.
+    
+    Args:
+        dicom_file (pydicom.Dataset): A pydicom file object representing the DICOM RTSTRUCT file to be updated.
+        structure_dict (list of dict): A list of dictionaries containing structure information,
+                                        where each dictionary has a 'local name' and 'TG263 name'.
+    
+    Returns:
+        None
+    """
+    new_names_map = {struct['local name']: struct['TG263 name'] for struct in structure_dict if struct['accept']}
+    if not new_names_map:
+        print("No valid structure names to update in the DICOM file.")
+        return
+    # for each new_names_map go into dicom file and change the ROIName
+    for roi in dicom_file.StructureSetROISequence:
+        print(roi.ROIName)
+        if roi.ROIName in new_names_map:
+            print (f"Updating ROI name from {roi.ROIName} to {new_names_map[roi.ROIName]}")
+            roi.ROIName = new_names_map[roi.ROIName]
+    print(f"Updated DICOM RTSTRUCT file with new structure names.")
+    return dicom_file
+
+        

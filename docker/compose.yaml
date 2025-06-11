@@ -16,6 +16,7 @@ services:
           - driver: nvidia
             count: 'all'
             capabilities: [gpu]
+    entrypoint: ["python", "app.py"]
   
   ollama:
     image: ollama/ollama

@@ -403,6 +403,7 @@ def get_model_str(model_name):
     with open('./config/models.json', 'r') as f:
         models = json.load(f)
     for model in models:
+        print(model_name, model)
         if model_name == model:
             return model['model_str'], model["cloud"]
     return None

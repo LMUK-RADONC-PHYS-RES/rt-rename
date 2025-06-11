@@ -1,4 +1,6 @@
 __pycache__
-cache/*
+cache
 data
 scripts
+.env
+docker/ollama

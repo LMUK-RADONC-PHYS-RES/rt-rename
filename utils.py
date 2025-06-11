@@ -559,8 +559,8 @@ def run_llm_cloud(model:str='meta-llama/Meta-Llama-3.1-70B-Instruct-fast', promp
         dict: A dictionary containing the response from the language model with the key 'response'.
     """
     client = OpenAI(
-        base_url="https://api.studio.nebius.ai/v1/",
-        api_key=os.environ.get("NEBIUS_API_KEY")
+        base_url=os.environ.get("OPEN_AI_URL"),
+        api_key=os.environ.get("OPEN_AI_API_KEY")
         )
 
     response = client.chat.completions.create(

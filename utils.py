@@ -390,6 +390,23 @@ def get_models():
     model_names = [f'{model["name"]} | {model["parameters"]} | {"cloud" if model["cloud"] else "local"}' for model in models]
     return model_names
 
+def get_model_str(model_name):
+    """
+    Retrieves the model string from the model name.
+    
+    Args:
+        model_name (str): The name of the model in the format 'model_str | parameters | cloud/local'.
+    Returns:
+        str: The model string identifier.
+    """
+    import json
+    with open('./config/models.json', 'r') as f:
+        models = json.load(f)
+    for model in models:
+        if model_name.startswith(model['name']):
+            return model['model_str'], model['cloud']
+    return None
+
 def run_model(model, prompt, guideline, region, structure_dict,column_defs=None,gui=True,uncertain=False):
     """
     Runs a specified model with given parameters and updates the structure dictionary with predictions.
@@ -404,8 +421,8 @@ def run_model(model, prompt, guideline, region, structure_dict,column_defs=None,
     Returns:
         list: Updated structure dictionary with predictions, confidence scores, and verification status.
     """
-    model_str = model['model_str']
-    cloud = True if model['cloud'] == 'true' else False
+    model_str, model_cloud = get_model_str(model)
+    cloud = model_cloud
 
     nomenclature_list = read_guideline(region,guideline,description=False)
     column_defs_updated = []
@@ -428,9 +445,6 @@ def run_model(model, prompt, guideline, region, structure_dict,column_defs=None,
         You are tasked with renaming structures based on a standardized nomenclature list. This task is crucial for standardizing radiation oncology 
         practices across different institutions from different countries and improving data interoperability. Follow the prompts strictly and do not provide 
         any additional information.'''
-        #save prompt_str to file
-        with open('prompt.txt','w') as f:
-            f.write(prompt_str)
         
         if uncertain:
             print('uncertainty')

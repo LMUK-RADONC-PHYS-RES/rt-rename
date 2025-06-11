@@ -1,5 +1,6 @@
 services:
-  app:
+  
+  rt-rename:
     build:
       context: . # Change this if you want your build config to be in a subdirectory
       dockerfile: dockerfile
@@ -15,6 +16,7 @@ services:
           - driver: nvidia
             count: 'all'
             capabilities: [gpu]
+  
   ollama:
     image: ollama/ollama
     volumes: 
@@ -28,3 +30,6 @@ services:
           - driver: nvidia
             count: 'all'
             capabilities: [gpu]
+
+volumes:
+  ollama:

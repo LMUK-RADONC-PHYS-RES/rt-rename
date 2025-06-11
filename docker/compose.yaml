@@ -4,6 +4,8 @@ services:
     build:
       context: . # Change this if you want your build config to be in a subdirectory
       dockerfile: dockerfile
+    volumes:
+      - ../:/code/rt-rename
     ports:
         - 8055:8055
     command: tail -F anything

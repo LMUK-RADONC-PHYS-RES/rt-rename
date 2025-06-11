@@ -6,9 +6,9 @@ RUN apt-get install -y git
 RUN mkdir /code
 WORKDIR /code
 
-COPY ../ /code/rt-rename
+RUN mkdir /code/rt-rename
 WORKDIR /code/rt-rename
-CMD ["python", "app.py"]
+
 
 
 

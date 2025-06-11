@@ -591,23 +591,27 @@ def run_llm_cloud(model:str='meta-llama/Meta-Llama-3.1-70B-Instruct-fast', promp
         api_key=os.environ.get("OPEN_AI_API_KEY")
         )
 
-    response = client.chat.completions.create(
-        model=model,
-        max_tokens=32000,
-        temperature=temperature,
-        top_p=top_p,
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": prompt
-                    }
-                ]
-            }
-        ]
-    )
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            max_tokens=32000,
+            temperature=temperature,
+            top_p=top_p,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": prompt
+                        }
+                    ]
+                }
+            ]
+        )
+    except Exception as e:
+        print(f"Error running model {model}, check your OPEN_AI_API_KEY and OPEN_AI_API_URL environment vaiables: {e}")
+        return None
 
     message = {}
     message['response'] = response.choices[0].message.content

@@ -552,7 +552,7 @@ def run_llm(model:str='llama3.1:70b-instruct-q4_0', prompt:str=None, system_prom
                                }
                                )
         return response
-    except ollama.errors.ModelNotFoundError:
+    except ollama._types.ResponseError as e:
         ollama_client.pull(model=model)
         response = ollama_client.generate(
                                 model=model,

@@ -4,7 +4,7 @@ import openpyxl as xl
 from openai import OpenAI
 import csv
 from time import sleep
-from dash import set_props
+from dash import set_props, html
 import time
 import base64
 import io
@@ -504,7 +504,7 @@ def run_model(model, prompt, guideline, region, structure_dict,column_defs=None,
                 
             else:
                 start = time.time()
-                response = run_llm(model=model_str,prompt=prompt_str,system_prompt=system_prompt)
+                response = run_llm(model=model_str,prompt=prompt_str,system_prompt=system_prompt,gui=gui)
                 end = time.time()
                 #print(f"Inference time: {end-start}")
             response_str = response['response'].split('</think>')[-1].splitlines()[-1]
@@ -527,7 +527,7 @@ def run_model(model, prompt, guideline, region, structure_dict,column_defs=None,
     sleep(3)
     return structure_dict
 
-def run_llm(model:str='llama3.1:70b-instruct-q4_0', prompt:str=None, system_prompt:str=None,temperature=0, top_p=0.1):
+def run_llm(model:str='llama3.1:70b-instruct-q4_0', prompt:str=None, system_prompt:str=None,temperature=0, top_p=0.1, gui=False):
     """
     Generates a response from a language model using the specified parameters.
     Args:
@@ -553,6 +553,8 @@ def run_llm(model:str='llama3.1:70b-instruct-q4_0', prompt:str=None, system_prom
                                )
         return response
     except ollama._types.ResponseError as e:
+        if gui:
+            set_props("status-bar", {'children': html.P(f"Pulling {model} from ollama server...")})
         ollama_client.pull(model=model)
         response = ollama_client.generate(
                                 model=model,

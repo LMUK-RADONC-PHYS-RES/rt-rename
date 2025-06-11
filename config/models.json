@@ -39,7 +39,7 @@
         "name": "Gemma 3",
         "parameters": "27B",
         "model_str": "gemma3:27b",
-
+        "cloud": false
     },
     {
         "name": "Deepseek V3",

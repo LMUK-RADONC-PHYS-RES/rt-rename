@@ -10,10 +10,10 @@ RT-Rename is a web-based application designed to standardize radiotherapy (RT) s
 
 ### Key Features
 
-- 🏥 **TG263 Compliance**: Standardizes structure names according to international radiotherapy guidelines
-- 🤖 **AI-Powered**: Uses state-of-the-art LLMs for intelligent name suggestions
+- 🏥 **Rename structure names**: Standardizes structure names according to international radiotherapy guidelines such as TG-263.
+- 🤖 **AI-Powered**: Uses state-of-the-art LLMs for name suggestions such as Llama 3.3, Gemma 3, Qwen 3, Deepseek R1, Deepseek V3 ...
 - 📁 **Multiple Formats**: Supports DICOM RTstruct, CSV, and .nrrd files
-- 🌐 **Web Interface**: User-friendly Dash-based interface
+- 🌐 **Web Interface**: User-friendly interface
 - 🐳 **Docker Ready**: Containerized deployment with Docker Compose
 - 💾 **Export Options**: Export as CSV or updated DICOM files
 
@@ -116,7 +116,7 @@ OPEN_AI_API_KEY=your_api_key_here
 1. **Configure Settings**
    - Select nomenclature type (TG263 or TG263_reverse)
    - Choose anatomical regions (Thorax, Head and Neck, etc.)
-   - Set target volume filtering
+   - Set target volume filtering (yes/no)
    - Select LLM model and prompt version
 
 2. **Upload Structure Data**
@@ -136,7 +136,7 @@ OPEN_AI_API_KEY=your_api_key_here
 
 ### Batch Processing
 
-For large-scale processing, use the batch script:
+For large-scale processing, modify the example batch script:
 
 ```python
 python batch_rename.py
@@ -162,7 +162,7 @@ Edit the script to specify:
 
 #### .nrrd Files
 - Directory containing structure files
-- Filters out intermediate files (_stitched, _s2_def, _s2)
+- Filters out intermediate files related to synthRAD2025 preprocessing (_stitched, _s2_def, _s2)
 - Supports batch processing
 
 ## Configuration
@@ -173,12 +173,16 @@ Edit `config/models.json` to add or modify available models:
 
 ```json
 {
-    "name": "Custom Model",
-    "parameters": "7B",
-    "model_str": "custom-model:7b",
-    "cloud": false
-}
+   "name": "Qwen 3",
+   "parameters": "30B",
+   "model_str": "qwen3:30b-a3b", 
+   "cloud": false
+},
 ```
+- `name`: Display name in the UI
+- `parameters`: Model size (e.g., 30B, 70B)
+- `model_str`: if `cloud == false` Ollama model string else model string used by the cloud inference api (e.g., `llama3.3:70b-instruct-q4_0`)
+- `cloud`: Set to `true` for cloud-based models, `false` for local models
 
 ### Prompt Engineering
 
@@ -191,21 +195,6 @@ Customize prompts in `config/prompt_v*.txt`:
 
 The `config/TG263_nomenclature.xlsx` file contains the official TG263 nomenclature. Update this file to use custom guidelines or newer versions.
 
-## API Reference
-
-### Core Functions
-
-#### `run_model()`
-```python
-run_model(model, prompt, guideline, region, structure_dict, gui=True, uncertain=False)
-```
-Main function for processing structures with LLM.
-
-#### `parse_csv()`, `parse_dicom()`
-Parse input files into standardized structure format.
-
-#### `update_dicom()`
-Update DICOM files with new structure names.
 
 ## Troubleshooting
 
@@ -242,29 +231,6 @@ Update DICOM files with new structure names.
 - Use cloud models for faster inference
 - Enable caching for repeated operations
 
-## Development
-
-### Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-### Development Setup
-
-```bash
-# Install development dependencies
-pip install -r requirements-dev.txt
-
-# Run tests
-python -m pytest tests/
-
-# Code formatting
-black *.py
-flake8 *.py
-```
 
 ### Adding New Models
 
@@ -278,12 +244,7 @@ flake8 *.py
 If you use RT-Rename in your research, please cite:
 
 ```bibtex
-@software{rt_rename_2025,
-  title={RT-Rename: AI-Powered Radiotherapy Structure Standardization},
-  author={ArtLab},
-  year={2025},
-  url={https://github.com/your-repo/rt-rename}
-}
+add paper once it's published
 ```
 
 ## License
